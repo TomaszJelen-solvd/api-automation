@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="MyTestSuite">
+    <test name="TestApi">
+        <classes>
+            <class name="com.solvd.UserDeleteTests"/>
+            <class name="com.solvd.UserPostTests"/>
+            <class name="com.solvd.UserGetTests"/>
+            <class name="com.solvd.UserPatchTests"/>
+            <class name="com.solvd.GraphQlTests"></class>
+        </classes>
+    </test>
+</suite>

@@ -1,62 +1,68 @@
 package com.solvd;
 
-import org.apache.hc.client5.http.classic.methods.HttpDelete;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpRequest;
 
-import static com.solvd.Constants.TOKEN;
-import static com.solvd.Constants.URL;
+import static com.solvd.Constants.*;
 
 public class HttpServices {
-    public static HttpPost httpPostUser(User user) {
 
-        HttpPost httpPost = new HttpPost(URL + "/users");
-
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("name", user.getName()));
-        params.add(new BasicNameValuePair("email", user.getEmail()));
-        params.add(new BasicNameValuePair("gender", user.getGender()));
-        params.add(new BasicNameValuePair("status", user.getStatus()));
-
-
-        httpPost.setEntity(new UrlEncodedFormEntity(params));
-        httpPost.addHeader("Authorization", "Bearer " + TOKEN);
-        return httpPost;
+    public static HttpRequest httpPostUser(User user) throws JsonProcessingException, URISyntaxException {
+        return httpPostUser(user, TOKEN);
     }
 
-    public static HttpGet httpGetUserById(Long id) {
-        HttpGet httpGet = new HttpGet(URL + "/users/" + id);
-        httpGet.addHeader("Authorization", "Bearer " + TOKEN);
-        return httpGet;
+    public static HttpRequest httpPostUser(User user, String token) throws JsonProcessingException, URISyntaxException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String userBody = objectMapper.writeValueAsString(user);
+        return httpJsonPost(userBody, token, "/users");
     }
 
-    public static HttpDelete httpDeleteUserById(Long id) {
-        HttpDelete httpDelete = new HttpDelete(URL + "/users/" + id);
-        httpDelete.addHeader("Authorization", "Bearer " + TOKEN);
-        return httpDelete;
+    public static HttpRequest httpJsonPost(String jsonBody, String suffix) throws JsonProcessingException, URISyntaxException {
+        return httpJsonPost(jsonBody, TOKEN, suffix);
     }
 
-    public static HttpGet httpGetAllUsers() {
-        HttpGet httpGet = new HttpGet(URL + "/users");
-        httpGet.addHeader("Authorization", "Bearer " + TOKEN);
-        return httpGet;
+    public static HttpRequest httpJsonPost(String jsonBody, String token, String suffix) throws URISyntaxException {
+        return HttpRequest.newBuilder()
+                .uri(new URI(URL + suffix))
+                .headers("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
     }
 
-    public static HttpGet httpGetUsersByGender(String gender) {
-        HttpGet httpGet = new HttpGet(URL + "/users?gender=" + gender);
-        httpGet.addHeader("Authorization", "Bearer " + TOKEN);
-        return httpGet;
+    public static HttpRequest httpGetUserById(Long id) throws URISyntaxException {
+        return customHttpGet("/users/" + id);
     }
 
-    public static HttpGet httpGetUsersByStatus(String status) {
-        HttpGet httpGet = new HttpGet(URL + "/users?status=" + status);
-        httpGet.addHeader("Authorization", "Bearer " + TOKEN);
-        return httpGet;
+    public static HttpRequest customHttpGet(String suffix) throws URISyntaxException {
+        return HttpRequest.newBuilder()
+                .uri(new URI(URL + suffix))
+                .headers("Authorization", "Bearer " + TOKEN)
+                .GET()
+                .build();
+    }
+
+    public static HttpRequest httpDeleteUserById(Long id) throws URISyntaxException {
+        return HttpRequest.newBuilder()
+                .uri(new URI(URL + "/users/" + id))
+                .headers("Authorization", "Bearer " + TOKEN)
+                .DELETE()
+                .build();
+    }
+
+    public static HttpRequest httpGetAllUsers() throws URISyntaxException {
+        return customHttpGet("/users");
+    }
+
+    public static HttpRequest httpGetUsersByGender(String gender) throws URISyntaxException {
+        return customHttpGet("/users?gender=" + gender);
+    }
+
+    public static HttpRequest httpGetUsersByStatus(String status) throws URISyntaxException {
+        return customHttpGet("/users?status=" + status);
     }
 }
