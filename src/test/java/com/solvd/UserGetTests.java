@@ -5,50 +5,42 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 
-import static com.solvd.HttpServices.*;
-import static com.solvd.UserPostTests.sendUser;
+import static com.solvd.HttpClientService.*;
+import static com.solvd.HttpHelper.retrieveUserById;
+import static com.solvd.HttpHelper.sendUserPostRequest;
 
 public class UserGetTests extends AbstractTest {
 
     //T002
     @Test
     public void testGetUserById() throws IOException, URISyntaxException, InterruptedException {
-        HttpClient httpClient = HttpClient.newHttpClient();
-        User user = sendUser(httpClient, new User("test", "test" + System.currentTimeMillis() + "@test.test", "male", "active"));
+        User user = sendUserPostRequest(httpClient, getExampleUser());
         retrieveUserById(httpClient, user.getId());
 
     }
 
     //T005
     @Test
-    public void NEWtestReadingAllUsers() throws URISyntaxException, IOException, InterruptedException {
-        HttpClient httpClient = HttpClient.newHttpClient();
+    public void testReadingAllUsers() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpGet = httpGetAllUsers();
-        validateResponse(httpClient, httpGet, HttpStatus.SC_SUCCESS, "Wrong response code during all users retrieving");
+        sendAndValidateResponse(httpClient, httpGet, HttpStatus.SC_SUCCESS, "Wrong response code during all users retrieving");
 
     }
 
     //T006
     @Test
-    public void NEWtestGetUserByGender() throws URISyntaxException, IOException, InterruptedException {
-        HttpClient httpClient = HttpClient.newHttpClient();
+    public void testGetUserByGender() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpGet = httpGetUsersByGender("male");
-        validateResponse(httpClient, httpGet, HttpStatus.SC_SUCCESS, "Wrong response code during users retrieving by gender");
+        sendAndValidateResponse(httpClient, httpGet, HttpStatus.SC_SUCCESS, "Wrong response code during users retrieving by gender");
     }
 
     //T007
     @Test
-    public void NEWtestGetUserByStatus() throws URISyntaxException, IOException, InterruptedException {
-        HttpClient httpClient = HttpClient.newHttpClient();
+    public void testGetUserByStatus() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpGet = httpGetUsersByStatus("active");
-        validateResponse(httpClient, httpGet, HttpStatus.SC_SUCCESS, "Wrong response code during users retrieving by status");
+        sendAndValidateResponse(httpClient, httpGet, HttpStatus.SC_SUCCESS, "Wrong response code during users retrieving by status");
     }
 
-    private void retrieveUserById(HttpClient httpClient, Long id) throws URISyntaxException, IOException, InterruptedException {
-        HttpRequest httpGet = httpGetUserById(id);
-        validateResponse(httpClient, httpGet, HttpStatus.SC_SUCCESS, "Wrong response code during user retrieving");
-    }
 }

@@ -3,14 +3,13 @@ package com.solvd;
 import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 
-import static com.solvd.Constants.*;
-import static com.solvd.Constants.UPDATE_USER_STATUS;
-import static com.solvd.HttpServices.httpJsonPost;
+import static com.solvd.GraphQlTemplates.*;
+import static com.solvd.HttpClientService.httpJsonPost;
 
 public class GraphQlServices {
 
     protected  static String createUser(User user) {
-        return String.format(CREATE_USER, user.getName(), user.getEmail(), user.getGender(), user.getStatus());
+        return String.format(CREATE_USER_TEMPLATE, user.getName(), user.getEmail(), user.getGender(), user.getStatus());
     }
 
     protected static String readUser(Long id) {
@@ -26,7 +25,7 @@ public class GraphQlServices {
     }
 
     public static HttpRequest httpGraphQLOperationPost(String operation) throws URISyntaxException {
-        String jsonBody = String.format(JSON_GRAPHQL, operation);
-        return httpJsonPost(jsonBody, TOKEN, "/graphql");
+        String jsonBody = String.format(JSON_GRAPHQL_TEMPLATE, operation);
+        return httpJsonPost(jsonBody, "/graphql");
     }
 }
